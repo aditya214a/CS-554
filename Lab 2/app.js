@@ -68,21 +68,24 @@ app.use("/recipes/:id", async (req, res, next) => {
 });
 
 app.use("/recipes", async (req, res, next) => {
-  if (req.method === "GET" && req.originalUrl !== "/recipes/:id") {
-    //req.originalUrl === "/shows" &&
-    let exists = await client.exists("recipeListHomepage");
-    if (exists) {
-      //if we do have it in cache, send the raw html from cache
-      console.log("Show List from cache");
-      let cachedRecipe = await client.get("recipeListHomepage");
-      console.log("Sending HTML from Redis....");
-      return res.status(200).json(JSON.parse(cachedRecipe));
+  if (!req.query.page) {
+    if (req.method === "GET" && req.originalUrl !== "/recipes/:id") {
+      //req.originalUrl === "/shows" &&
+      let exists = await client.exists("recipeListHomepage");
+      if (exists) {
+        //if we do have it in cache, send the raw html from cache
+        console.log("Show List from cache");
+        let cachedRecipe = await client.get("recipeListHomepage");
+        console.log("Sending HTML from Redis....");
+        return res.status(200).json(JSON.parse(cachedRecipe));
+      } else {
+        next();
+      }
     } else {
       next();
     }
-  } else {
-    next();
   }
+  next();
 });
 
 //Authentication Middleware

@@ -272,7 +272,7 @@ router.route("/login").post(async (req, res) => {
   try {
     let regDetails = req.body;
     let timeStamp = new Date().toUTCString();
-    let uname = regDetails.username;
+    let uname = regDetails.username.toLowerCase();
     let upass = regDetails.password;
     let checking = await users.checkUser(uname, upass);
 

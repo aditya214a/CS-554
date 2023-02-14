@@ -52,6 +52,7 @@ const createUser = async (name, username, password) => {
   await checkError(username, password);
   await checkErrorN(name);
 
+  name = name.toLowerCase();
   username = username.toLowerCase();
   let userExist = await userData.findOne({ username: username });
   if (userExist) {

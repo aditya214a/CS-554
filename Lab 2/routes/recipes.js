@@ -213,7 +213,7 @@ router.route("/recipes/:id/likes").post(async (req, res) => {
   try {
     let temp = await client.hGetAll("LoggedUser");
 
-    if (temp.login !== "true") throw { code: 403, err: `Please login to like` };
+    if (temp.login !== "true") throw { code: 400, err: `Please login to like` };
     console.log(temp);
     let recipeLiked = await recipes.likeRecipe(req.params.id, temp.userId);
     if (recipeLiked) {
@@ -244,7 +244,7 @@ router.route("/recipes/:id/likes").post(async (req, res) => {
     } else throw { code: 500, err: `Unable to comment (casch)` };
   } catch (e) {
     if (e.code) res.status(e.code).json({ error: e.err });
-    else res.status(400).json({ error: e });
+    else res.status(404).json({ error: e });
   }
 });
 
@@ -256,7 +256,7 @@ router.route("/signup").post(async (req, res) => {
     let uname = regDetails.username;
     let upass = regDetails.password;
     let addUser = await users.createUser(nam, uname, upass);
-    console.log(addUser);
+    // console.log(addUser);
     return res.status(200).json(addUser);
   } catch (e) {
     if (e.code) {
@@ -288,13 +288,13 @@ router.route("/login").post(async (req, res) => {
     //EXPIRES IN ONE HOUR
     await client.expire("LoggedUser", 3600);
     let sess = await client.hGetAll("LoggedUser");
-    console.log(sess);
+    // console.log(sess);
     // req.session.login = checking.authenticated;
     // req.session.username = uname;
     // req.session.userId = checking.userId;
     // req.session.timeStamp = timeStamp;
 
-    return res.status(200).json(checking);
+    return res.status(200).json(sess);
   } catch (e) {
     if (e.code) {
       res.status(e.code).json(e.err);

@@ -109,7 +109,8 @@ const likeRecipe = async (recipeId, uid) => {
 
   const recipeCollection = await recipes();
   let recipesList = await recipeCollection.findOne({ _id: ObjectId(recipeId) });
-
+  if (!recipesList)
+    throw { code: 404, err: `Could not find recipe with id of ${id}` };
   if (recipesList.likes.includes(uid)) {
     // let ind = recipesList.likes.indexOf(uid);
     const index = recipesList.likes.indexOf(uid);
@@ -148,7 +149,7 @@ const patchRecipes = async (recipeId, body, uid) => {
   await help.checkId(recipeId);
   await help.checkId(uid);
   if (!body || body.length === 0)
-    throw { code: 404, err: `Please provide atleast one to update` };
+    throw { code: 400, err: `Please provide atleast one to update` };
 
   let canEdit = ["title", "ingredients", "steps", "cookingSkillRequired"];
   let bodyKeys = Object.keys(body);
@@ -156,7 +157,7 @@ const patchRecipes = async (recipeId, body, uid) => {
 
   bodyKeys.forEach((element) => {
     if (!canEdit.includes(element)) {
-      throw { code: 403, err: `Cannot edit ${element} field` };
+      throw { code: 400, err: `Cannot edit ${element} field` };
     }
   });
   const recipeCollection = await recipes();
@@ -192,7 +193,7 @@ const patchRecipes = async (recipeId, body, uid) => {
     );
   }
   if (validKeys.length !== 0 && validKeys.includes(true)) {
-    throw { code: 404, err: `Please provide different value for each field` };
+    throw { code: 400, err: `Please provide different value for each field` };
   }
   let patched = recipeCollection.updateOne(
     { _id: ObjectId(recipeId) },

@@ -18,7 +18,7 @@ const checkIngredients = async (ingredients) => {
   if (!ingredients || Array.isArray(ingredients) == false) {
     throw { code: 403, err: `Please provide valid ingredients` };
   } else if (ingredients.length < 4)
-    throw { code: 403, err: `Atleast 1 ingredient required` };
+    throw { code: 403, err: `Atleast 3 ingredient required` };
   ingredients.forEach((element) => {
     if (!element || typeof element != "string") {
       throw { code: 403, err: `One or more ingredients invalid` };
@@ -92,7 +92,7 @@ const checkErrorRecipes = async (
   if (!ingredients || Array.isArray(ingredients) == false) {
     throw { code: 403, err: `Please provide valid ingredients` };
   } else if (ingredients.length < 4)
-    throw { code: 403, err: `Atleast 1 ingredient required` };
+    throw { code: 403, err: `Atleast 3 ingredient required` };
   ingredients.forEach((element) => {
     if (!element || typeof element != "string") {
       throw { code: 403, err: `One or more ingredients invalid` };

@@ -20,7 +20,7 @@ const addComment = async function addComment(
   });
   if (!recipeCommentAdd) {
     throw {
-      code: 403,
+      code: 404,
       err: `Recipe not found with the provided ID ${recipeId}`,
     };
   }
@@ -63,7 +63,7 @@ const deleteComment = async function addComment(recipeId, cid, uid) {
   });
   if (!recipeCommentDel) {
     throw {
-      code: 403,
+      code: 404,
       err: `Recipe not found with the provided ID ${recipeId}`,
     };
   }
@@ -71,10 +71,7 @@ const deleteComment = async function addComment(recipeId, cid, uid) {
   let allComm = recipeCommentDel.comments;
 
   allComm.forEach(async (comment) => {
-    if (
-      comment._id.toString() === cid.toString() &&
-      comment.userThatPostedComment._id.toString() === uid.toString()
-    ) {
+    if (comment._id.toString() === cid.toString()) {
       comDel = true;
       let recipeCommentDeleted = await recipeCollection.update(
         { _id: ObjectId(recipeId) },
@@ -90,7 +87,7 @@ const deleteComment = async function addComment(recipeId, cid, uid) {
   });
   if (comDel === false)
     throw {
-      code: 404,
+      code: 400,
       err: `Either user not authorised to delete comment or comment ${cid} not found`,
     };
   let updatedRecipe = await recipesData.getRecipeById(recipeId);

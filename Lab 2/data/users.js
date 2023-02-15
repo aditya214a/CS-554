@@ -67,6 +67,7 @@ const createUser = async (name, username, password) => {
     password: hashedPassword,
   };
   let userAdd = await userData.insertOne(userDetails);
+  delete userDetails.password;
   if (userAdd.insertedCount === 0) {
     throw { code: 500, err: `Unable to add new user` };
   }

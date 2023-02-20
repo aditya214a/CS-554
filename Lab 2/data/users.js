@@ -71,6 +71,10 @@ const createUser = async (name, username, password) => {
   if (userAdd.insertedCount === 0) {
     throw { code: 500, err: `Unable to add new user` };
   }
+  obj = {};
+  obj.id = userDetails._id;
+  obj.name = userDetails.name;
+  obj.username = userDetails.username;
   return userDetails;
 };
 

@@ -162,9 +162,7 @@ const patchRecipes = async (recipeId, body, uid) => {
     _id: ObjectId(recipeId),
   });
   if (recipesList.userThatPosted._id.toString() != uid) {
-    return res
-      .status(403)
-      .json({ err: `This user cannot edit the asked recipe` });
+    throw { code: 403, err: `This user cannot edit the asked recipe` };
   }
 
   bodyKeys.forEach((element) => {
@@ -179,7 +177,7 @@ const patchRecipes = async (recipeId, body, uid) => {
     }
   });
   if (!oneDifferent)
-    throw { coer: 400, err: `Atleast one field must be different` };
+    throw { code: 400, err: `Atleast one field must be different` };
 
   if (!recipesList)
     throw { code: 404, err: `Could not find recipe with id of ${recipeId}` };

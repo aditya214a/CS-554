@@ -10,12 +10,13 @@ router
   .route("/recipes")
   .post(async (req, res) => {
     try {
-      let temp = await client.hGetAll("LoggedUser");
-
       let title = req.body.title;
       let ingredients = req.body.ingredients;
       let steps = req.body.steps;
       let cookingSkillRequired = req.body.cookingSkillRequired;
+
+      let temp = await client.hGetAll("LoggedUser");
+
       // console.log(temp);
       let userName = temp.username;
       let userId = temp.userId;
@@ -101,9 +102,9 @@ router
     }
   })
   .patch(async (req, res) => {
-    let rid = req.params.id;
-    let body = req.body;
     try {
+      let rid = req.params.id;
+      let body = req.body;
       let temp = await client.hGetAll("LoggedUser");
       let patchRec = await recipes.patchRecipes(rid, body, temp.userId);
 
@@ -113,7 +114,7 @@ router
         await client.set("recipeListHomepage", JSON.stringify(recipeList));
       } else throw { code: 500, err: `Recipes are unable to get!` };
 
-      return res.json(patchRec);
+      return res.json({ patchRec });
     } catch (e) {
       if (e.code) res.status(e.code).json({ error: e.err });
       else res.status(400).json({ error: e });
@@ -280,18 +281,21 @@ router.route("/login").post(async (req, res) => {
     await client.hSet("LoggedUser", "login", checking.authenticated.toString());
     await client.hSet("LoggedUser", "username", uname.toString());
     await client.hSet("LoggedUser", "userId", checking.userId.toString());
-    await client.hSet("LoggedUser", "timeStamp", timeStamp.toString());
+    // await client.hSet("LoggedUser", "timeStamp", timeStamp.toString());
 
     //EXPIRES IN ONE HOUR
     await client.expire("LoggedUser", 3600);
     let sess = await client.hGetAll("LoggedUser");
+    let obj = {};
+    obj.username = sess.username;
+    obj.id = sess.userId;
     // console.log(sess);
     // req.session.login = checking.authenticated;
     // req.session.username = uname;
     // req.session.userId = checking.userId;
     // req.session.timeStamp = timeStamp;
 
-    return res.status(200).json(sess);
+    return res.status(200).json(obj);
   } catch (e) {
     if (e.code) {
       res.status(e.code).json(e.err);

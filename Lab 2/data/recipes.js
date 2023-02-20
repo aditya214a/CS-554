@@ -67,6 +67,7 @@ const createRecipe = async (
 };
 
 const getAllRecipes = async (skip = 0, limit = 50) => {
+  // console.log("HIII");
   const recipeCollection = await recipes();
   const recipeList = await recipeCollection
     .find({})
@@ -153,47 +154,52 @@ const patchRecipes = async (recipeId, body, uid) => {
 
   let canEdit = ["title", "ingredients", "steps", "cookingSkillRequired"];
   let bodyKeys = Object.keys(body);
-  let validKeys = [];
+  // let validKeys = [];
+  let oneDifferent = false;
+
+  const recipeCollection = await recipes();
+  const recipesList = await recipeCollection.findOne({
+    _id: ObjectId(recipeId),
+  });
+  if (recipesList.userThatPosted._id.toString() != uid) {
+    return res
+      .status(403)
+      .json({ err: `This user cannot edit the asked recipe` });
+  }
 
   bodyKeys.forEach((element) => {
     if (!canEdit.includes(element)) {
       throw { code: 400, err: `Cannot edit ${element} field` };
     }
+    if (
+      JSON.stringify(body[element.toString()].toLowerCase()) !==
+      JSON.stringify(recipesList[element.toString()].toLowerCase())
+    ) {
+      oneDifferent = true;
+    }
   });
-  const recipeCollection = await recipes();
-  const recipesList = await recipeCollection.findOne({
-    _id: ObjectId(recipeId),
-  });
+  if (!oneDifferent)
+    throw { coer: 400, err: `Atleast one field must be different` };
 
   if (!recipesList)
     throw { code: 404, err: `Could not find recipe with id of ${recipeId}` };
+  // bodyKeys.forEach((element) => {
+
+  // });
+
   if (bodyKeys.includes("title")) {
     body.title = await help.checkTitle(body.title);
-    validKeys.push(body.title === recipesList.title);
   }
   if (bodyKeys.includes("ingredients")) {
     body.ingredients = await help.checkIngredients(body.ingredients);
-    validKeys.push(
-      JSON.stringify(body.ingredients) ===
-        JSON.stringify(recipesList.ingredients)
-    );
   }
   if (bodyKeys.includes("steps")) {
     body.steps = await help.checkSteps(body.steps);
-    validKeys.push(
-      JSON.stringify(body.steps) === JSON.stringify(recipesList.steps)
-    );
   }
   if (bodyKeys.includes("cookingSkillRequired")) {
     body.cookingSkillRequired = await help.checkCooking(
       body.cookingSkillRequired
     );
-    validKeys.push(
-      body.cookingSkillRequired === recipesList.cookingSkillRequired
-    );
-  }
-  if (validKeys.length !== 0 && validKeys.includes(true)) {
-    throw { code: 400, err: `Please provide different value for each field` };
   }
   let patched = recipeCollection.updateOne(
     { _id: ObjectId(recipeId) },

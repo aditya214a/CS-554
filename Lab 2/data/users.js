@@ -83,7 +83,7 @@ const checkUser = async (username, password) => {
     throw { code: 400, err: `Either the username or password is invalid` };
   }
   let comparePass = await bcrypt.compare(password, userExist.password);
-  console.log(comparePass);
+  // console.log(comparePass);
   if (!comparePass) {
     throw { code: 400, err: `Either the username or password is invalid` };
   }

@@ -23,47 +23,35 @@ app.use(
 );
 
 app.use("/recipes/:id", async (req, res, next) => {
+  if (req.method === "PATCH") {
+    next();
+  }
   let temp = await client.hGetAll("LoggedUser");
+  let rid = req.params.id;
   if (req.method === "GET") {
-    let exists = await client.exists(req.params.id);
+    let exists = await client.exists(rid);
     if (exists) {
-      let existsInScoreBoard = await client.zRank("mostId", req.params.id);
+      let existsInScoreBoard = await client.zRank("mostId", rid);
       if (existsInScoreBoard !== null) {
         console.log("found search term in sorted set");
         // It has been found in the list so let's increment it by 1
-        await client.zIncrBy("mostId", 1, req.params.id);
+        await client.zIncrBy("mostId", 1, rid);
       } else {
         console.log("search term in sorted set NOT found");
         //If the search term is not found in the list, then we know to add it
         await client.zAdd("mostId", {
           score: 1,
-          value: req.params.id,
+          value: rid,
         });
       }
       //if we do have it in cache, send the raw html from cache
       console.log("Show in Cache");
-      let oneRecipe = await client.get(req.params.id);
+      let oneRecipe = await client.get(rid);
       console.log("Sending HTML from Redis....");
       return res.send(JSON.parse(oneRecipe));
     }
   }
-  if (req.method == "PUT" || req.method == "PATCH") {
-    let tempRecipes;
-    try {
-      tempRecipes = await recipes.getRecipeById(req.params.id);
-    } catch (e) {
-      if (e.code) {
-        return res.status(e.code).json(e.err);
-      } else {
-        return res.status(500).json(e);
-      }
-    }
-    if (tempRecipes.userThatPosted._id != temp.userId) {
-      return res
-        .status(403)
-        .json({ err: `This user cannot edit the asked recipe` });
-    }
-  }
+
   next();
 });
 
@@ -120,6 +108,23 @@ app.use("/recipes", async (req, res, next) => {
         .status(403)
         .json(`User need to signup or login to access this page`);
     }
+    // if (req.method == "PUT" || req.method == "PATCH") {
+    //   let tempRecipes;
+    //   try {
+    //     tempRecipes = await recipes.getRecipeById(rid);
+    //     if (tempRecipes.userThatPosted._id != temp.userId) {
+    //       return res
+    //         .status(403)
+    //         .json({ err: `This user cannot edit the asked recipe` });
+    //     }
+    //   } catch (e) {
+    //     if (e.code) {
+    //       return res.status(e.code).json(e.err);
+    //     } else {
+    //       return res.status(500).json(e);
+    //     }
+    //   }
+    // }
   }
   next();
 });

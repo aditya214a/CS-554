@@ -17,7 +17,7 @@ const checkIngredients = async (ingredients) => {
   //INGREDIENTS
   if (!ingredients || Array.isArray(ingredients) == false) {
     throw { code: 403, err: `Please provide valid ingredients` };
-  } else if (ingredients.length < 4)
+  } else if (ingredients.length < 3)
     throw { code: 403, err: `Atleast 3 ingredient required` };
   ingredients.forEach((element) => {
     if (!element || typeof element != "string") {
@@ -57,12 +57,13 @@ const checkSteps = async (steps) => {
 };
 
 const checkCooking = async (cookingSkillRequired) => {
+  cookingSkillRequired = cookingSkillRequired.toLowerCase();
   if (!cookingSkillRequired || typeof cookingSkillRequired != "string") {
     throw { code: 403, err: `Cooking Skill Required is Invalid or empty` };
   } else if (
-    cookingSkillRequired.trim() != "Novice" &&
-    cookingSkillRequired.trim() != "Intermediate" &&
-    cookingSkillRequired.trim() != "Advanced"
+    cookingSkillRequired.trim() != "novice" &&
+    cookingSkillRequired.trim() != "intermediate" &&
+    cookingSkillRequired.trim() != "advanced"
   ) {
     throw { code: 403, err: `It can only be  Novice, Intermediate, Advanced` };
   }
@@ -91,7 +92,7 @@ const checkErrorRecipes = async (
   //INGREDIENTS
   if (!ingredients || Array.isArray(ingredients) == false) {
     throw { code: 403, err: `Please provide valid ingredients` };
-  } else if (ingredients.length < 4)
+  } else if (ingredients.length < 3)
     throw { code: 403, err: `Atleast 3 ingredient required` };
   ingredients.forEach((element) => {
     if (!element || typeof element != "string") {
@@ -128,25 +129,22 @@ const checkErrorRecipes = async (
   });
   obj["steps"] = steps;
   // COOKINGSKILLSREQUIRED
+  cookingSkillRequired = cookingSkillRequired.toLowerCase();
   if (!cookingSkillRequired || typeof cookingSkillRequired != "string") {
     throw { code: 403, err: `Cooking Skill Required is Invalid or empty` };
   } else if (
-    cookingSkillRequired.trim() != "Novice" &&
-    cookingSkillRequired.trim() != "Intermediate" &&
-    cookingSkillRequired.trim() != "Advanced"
+    cookingSkillRequired.trim() != "novice" &&
+    cookingSkillRequired.trim() != "intermediate" &&
+    cookingSkillRequired.trim() != "advanced"
   ) {
     throw { code: 403, err: `It can only be  Novice, Intermediate, Advanced` };
   }
+
   obj["cookingSkillRequired"] = cookingSkillRequired.trim();
   return obj;
 };
 const checkId = async (ID) => {
-  if (
-    !ID ||
-    typeof ID != "string" ||
-    !ObjectId.isValid(ID) ||
-    !ID.trim().match(/^[0-9a-fA-F]*$/)
-  ) {
+  if (!ID || typeof ID != "string" || !ObjectId.isValid(ID)) {
     throw { code: 404, err: `Please provide valid ID` };
   } else if (ID.trim().length == 0) {
     throw { code: 404, err: `ID is empty or only spaces` };

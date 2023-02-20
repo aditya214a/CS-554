@@ -16,7 +16,7 @@ router
       let ingredients = req.body.ingredients;
       let steps = req.body.steps;
       let cookingSkillRequired = req.body.cookingSkillRequired;
-      console.log(temp);
+      // console.log(temp);
       let userName = temp.username;
       let userId = temp.userId;
       let logged = temp.login;
@@ -73,24 +73,25 @@ router
 router
   .route("/recipes/:id")
   .get(async (req, res) => {
+    let rid = req.params.id;
     try {
-      const oneRecipe = await recipes.getRecipeById(req.params.id);
+      const oneRecipe = await recipes.getRecipeById(rid);
       if (oneRecipe) {
-        let existsInScoreBoard = await client.zRank("mostId", req.params.id);
+        let existsInScoreBoard = await client.zRank("mostId", rid);
         if (existsInScoreBoard !== null) {
           console.log("found Recipe in sorted set");
           // It has been found in the list so let's increment it by 1
-          await client.zIncrBy("mostId", 1, req.params.id);
+          await client.zIncrBy("mostId", 1, rid);
         } else {
           console.log("Recipe in sorted set NOT found");
           //If the Recipe is not found in the list, then we know to add it
           await client.zAdd("mostId", {
             score: 1,
-            value: req.params.id,
+            value: rid,
           });
         }
 
-        await client.set(req.params.id, JSON.stringify(oneRecipe));
+        await client.set(rid, JSON.stringify(oneRecipe));
 
         return res.status(200).json(oneRecipe);
       } else throw { code: 500, err: `Recipes is unable to get!` };
@@ -100,15 +101,11 @@ router
     }
   })
   .patch(async (req, res) => {
+    let rid = req.params.id;
+    let body = req.body;
     try {
       let temp = await client.hGetAll("LoggedUser");
-
-      let body = req.body;
-      let patchRec = await recipes.patchRecipes(
-        req.params.id,
-        body,
-        temp.userId
-      );
+      let patchRec = await recipes.patchRecipes(rid, body, temp.userId);
 
       //UPDATING CASCH
       const recipeList = await recipes.getAllRecipes();
@@ -170,7 +167,7 @@ router.route("/recipes/:recipeId/:commentId").delete(async (req, res) => {
   try {
     let temp = await client.hGetAll("LoggedUser");
 
-    console.log(req.params.commentId);
+    // console.log(req.params.commentId);
     let deleteComment = await comments.deleteComment(
       req.params.recipeId,
       req.params.commentId,
@@ -214,7 +211,7 @@ router.route("/recipes/:id/likes").post(async (req, res) => {
     let temp = await client.hGetAll("LoggedUser");
 
     if (temp.login !== "true") throw { code: 400, err: `Please login to like` };
-    console.log(temp);
+    // console.log(temp);
     let recipeLiked = await recipes.likeRecipe(req.params.id, temp.userId);
     if (recipeLiked) {
       let existsInScoreBoard = await client.zRank("mostId", req.params.id);
@@ -329,7 +326,7 @@ router.route("/mostaccessed").get(async (req, res) => {
   try {
     let arr = [];
     const scores = await client.zRange("mostId", 0, 2, { REV: true });
-    console.log(scores);
+    // console.log(scores);
     for (let i = 0; i < scores.length; i++) {
       let oneRecipe = await recipes.getRecipeById(scores[i]);
       arr.push(oneRecipe);

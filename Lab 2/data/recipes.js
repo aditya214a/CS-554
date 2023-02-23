@@ -147,8 +147,8 @@ const likeRecipe = async (recipeId, uid) => {
 };
 
 const patchRecipes = async (recipeId, body, uid) => {
-  // await help.checkId(recipeId);
-  // await help.checkId(uid);
+  await help.checkId(recipeId);
+  await help.checkId(uid);
   if (!body || body.length == 0)
     throw { code: 400, err: `Please provide atleast one to update` };
 

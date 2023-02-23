@@ -40,7 +40,7 @@ app.use("/signup", async (req, res, next) => {
 app.use("/recipes", async (req, res, next) => {
   // console.log("IN MIDDLEWARE=" + req.originalUrl);
   let temp = await client.hGetAll("LoggedUser");
-  if (req.method == "POST" || req.method == "PUT" || req.method == "PATCH") {
+  if (req.method == "POST" || req.method == "PUT") {
     if (
       temp.login !== "true" &&
       !(
@@ -71,10 +71,15 @@ app.use("/recipes", async (req, res, next) => {
 });
 
 app.use("/recipes/:id", async (req, res, next) => {
+  let temp = await client.hGetAll("LoggedUser");
   if (req.method === "PATCH") {
+    if (temp.login !== "true") {
+      return res
+        .status(403)
+        .json(`User need to signup or login to access this page`);
+    }
     next();
-  }
-  if (req.method === "GET") {
+  } else if (req.method === "GET") {
     let rid = req.params.id;
     let exists = await client.exists(rid);
     if (exists) {
@@ -97,9 +102,10 @@ app.use("/recipes/:id", async (req, res, next) => {
       // console.log("Sending HTML from Redis....");
       return res.send(JSON.parse(oneRecipe));
     }
+    next();
+  } else {
+    next();
   }
-
-  next();
 });
 
 app.use("/recipes/:id/comment", async (req, res, next) => {

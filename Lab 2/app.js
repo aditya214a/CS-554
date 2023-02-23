@@ -53,6 +53,52 @@ app.use("/recipes", async (req, res, next) => {
         .json(`User need to signup or login to access this page`);
     }
   }
+  if (
+    req.method === "GET" &&
+    (req.originalUrl == "/recipes" || req.query.page !== undefined)
+  ) {
+    let exists = await client.exists("recipeListHomepage");
+    if (exists) {
+      //req.originalUrl === "/shows" &&
+      //if we do have it in cache, send the raw html from cache
+      // console.log("Show List from cache");
+      let cachedRecipe = await client.get("recipeListHomepage");
+      // console.log("Sending HTML from Redis....");
+      return res.status(200).json(JSON.parse(cachedRecipe));
+    }
+  }
+  next();
+});
+
+app.use("/recipes/:id", async (req, res, next) => {
+  if (req.method === "PATCH") {
+    next();
+  }
+  if (req.method === "GET") {
+    let rid = req.params.id;
+    let exists = await client.exists(rid);
+    if (exists) {
+      let existsInScoreBoard = await client.zRank("mostId", rid);
+      if (existsInScoreBoard !== null) {
+        console.log("found search term in sorted set");
+        // It has been found in the list so let's increment it by 1
+        await client.zIncrBy("mostId", 1, rid);
+      } else {
+        console.log("search term in sorted set NOT found");
+        //If the search term is not found in the list, then we know to add it
+        await client.zAdd("mostId", {
+          score: 1,
+          value: rid,
+        });
+      }
+      //if we do have it in cache, send the raw html from cache
+      // console.log("Show in Cache");
+      let oneRecipe = await client.get(rid);
+      // console.log("Sending HTML from Redis....");
+      return res.send(JSON.parse(oneRecipe));
+    }
+  }
+
   next();
 });
 
@@ -148,7 +194,7 @@ app.listen(3000, () => {
 //         });
 //       }
 //       //if we do have it in cache, send the raw html from cache
-//       console.log("Show in Cache");
+// console.log("Show in Cache");
 //       let oneRecipe = await client.get(rid);
 //       console.log("Sending HTML from Redis....");
 //       return res.send(JSON.parse(oneRecipe));

@@ -76,15 +76,15 @@ router
   .get(async (req, res) => {
     let rid = req.params.id;
     try {
-      const oneRecipe = await recipes.getRecipeById(rid);
+      let oneRecipe = await recipes.getRecipeById(rid);
       if (oneRecipe) {
         let existsInScoreBoard = await client.zRank("mostId", rid);
         if (existsInScoreBoard !== null) {
-          console.log("found Recipe in sorted set");
+          // console.log("found Recipe in sorted set");
           // It has been found in the list so let's increment it by 1
           await client.zIncrBy("mostId", 1, rid);
         } else {
-          console.log("Recipe in sorted set NOT found");
+          // console.log("Recipe in sorted set NOT found");
           //If the Recipe is not found in the list, then we know to add it
           await client.zAdd("mostId", {
             score: 1,
@@ -95,7 +95,7 @@ router
         await client.set(rid, JSON.stringify(oneRecipe));
 
         return res.status(200).json(oneRecipe);
-      } else throw { code: 500, err: `Recipes is unable to get!` };
+      } else throw { code: 500, err: `Recipe is unable to get!` };
     } catch (e) {
       if (e.code) res.status(e.code).json({ error: e.err });
       else res.status(400).json({ error: e });
@@ -107,8 +107,7 @@ router
       let body = req.body;
       let temp = await client.hGetAll("LoggedUser");
       let patchRec = await recipes.patchRecipes(rid, body, temp.userId);
-
-      //UPDATING CASCH
+      // UPDATING CASCH
       const recipeList = await recipes.getAllRecipes();
       if (recipeList) {
         await client.set("recipeListHomepage", JSON.stringify(recipeList));
@@ -141,7 +140,7 @@ router.route("/recipes/:id/comments").post(async (req, res) => {
         // It has been found in the list so let's increment it by 1
         await client.zIncrBy("mostId", 1, req.params.id);
       } else {
-        console.log("Recipe in sorted set NOT found");
+        // console.log("Recipe in sorted set NOT found");
         //If the Recipe is not found in the list, then we know to add it
         await client.zAdd("mostId", {
           score: 1,
@@ -184,7 +183,7 @@ router.route("/recipes/:recipeId/:commentId").delete(async (req, res) => {
         // It has been found in the list so let's increment it by 1
         await client.zIncrBy("mostId", 1, req.params.recipeId);
       } else {
-        console.log("Recipe in sorted set NOT found");
+        // console.log("Recipe in sorted set NOT found");
         //If the Recipe is not found in the list, then we know to add it
         await client.zAdd("mostId", {
           score: 1,
@@ -223,7 +222,7 @@ router.route("/recipes/:id/likes").post(async (req, res) => {
         // It has been found in the list so let's increment it by 1
         await client.zIncrBy("mostId", 1, req.params.id);
       } else {
-        console.log("Recipe in sorted set NOT found");
+        // console.log("Recipe in sorted set NOT found");
         //If the Recipe is not found in the list, then we know to add it
         await client.zAdd("mostId", {
           score: 1,
@@ -276,12 +275,12 @@ router.route("/login").post(async (req, res) => {
 
     let userLog = await client.hGetAll("LoggedUser");
     if (userLog.login === "true") {
-      return res.json(`User ${userLog.uname} already logged in`);
+      return res.json(`User ${userLog.username} already logged in`);
     }
     await client.hSet("LoggedUser", "login", checking.authenticated.toString());
     await client.hSet("LoggedUser", "username", uname.toString());
     await client.hSet("LoggedUser", "userId", checking.userId.toString());
-    // await client.hSet("LoggedUser", "timeStamp", timeStamp.toString());
+    await client.hSet("LoggedUser", "timeStamp", timeStamp.toString());
 
     //EXPIRES IN ONE HOUR
     await client.expire("LoggedUser", 3600);

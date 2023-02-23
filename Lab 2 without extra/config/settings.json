@@ -1,7 +1,0 @@
-
-{
-    "mongoConfig": {
-      "serverUrl": "mongodb://localhost:27017/",
-      "database": "Adhduk-Aditya-CS554-Lab1"
-    }
-}

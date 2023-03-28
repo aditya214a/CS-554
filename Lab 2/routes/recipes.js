@@ -328,7 +328,7 @@ router.route("/mostaccessed").get(async (req, res) => {
   //code here for GET
   try {
     let arr = [];
-    const scores = await client.zRange("mostId", 0, 2, { REV: true });
+    const scores = await client.zRange("mostId", 0, 9, { REV: true });
     // console.log(scores);
     for (let i = 0; i < scores.length; i++) {
       let oneRecipe = await recipes.getRecipeById(scores[i]);

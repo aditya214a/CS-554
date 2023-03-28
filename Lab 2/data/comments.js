@@ -54,7 +54,7 @@ const addComment = async function addComment(
   return recipeCommentAdded;
 };
 
-const deleteComment = async function addComment(recipeId, cid, uid) {
+const deleteComment = async function deleteComment(recipeId, cid, uid) {
   await help.checkId(recipeId);
   await help.checkId(cid);
   const recipeCollection = await recipes();

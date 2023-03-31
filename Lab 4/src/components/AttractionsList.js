@@ -16,18 +16,17 @@ import {
 
 import "../App.css";
 
-const EventsList = (props) => {
+const AttractionsList = (props) => {
   // const regex = /(<([^>]+)>)/gi;
   const [loading, setLoading] = useState(true);
   const [searchData, setSearchData] = useState(undefined);
-  const [eventsData, setEventsData] = useState(undefined);
+  const [attractionsData, setAttractionsData] = useState(undefined);
   const [searchTerm, setSearchTerm] = useState("");
   const [hideNext, setHideNext] = useState(false);
+  const [hidePrev, setHidePrev] = useState(true);
   const [error, setError] = useState(false);
   const [errorCode, setErrorCode] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
-
-  const [hidePrev, setHidePrev] = useState(true);
   let card = null;
   let { page } = useParams();
   // checkPageData();
@@ -35,7 +34,7 @@ const EventsList = (props) => {
     console.log("on load useeffect");
     async function fetchData() {
       try {
-        const data = await axiosLists("events", parseInt(page));
+        const data = await axiosLists("attractions", parseInt(page));
 
         if (parseInt(page) > 1) {
           setHidePrev(false);
@@ -43,7 +42,7 @@ const EventsList = (props) => {
           setHidePrev(true);
         }
         setHideNext(false);
-        setEventsData(data.events);
+        setAttractionsData(data.attractions);
         setLoading(false);
       } catch (e) {
         setErrorCode("404");
@@ -53,7 +52,7 @@ const EventsList = (props) => {
       }
 
       try {
-        const data1 = await axiosLists("events", parseInt(page) + 1); //100
+        const data1 = await axiosLists("attractions", parseInt(page) + 1);
         if (!data1) {
           //2558
           throw new Error("No Next Page");
@@ -70,9 +69,9 @@ const EventsList = (props) => {
     async function fetchData() {
       try {
         console.log(`in fetch searchTerm: ${searchTerm}`);
-        const data = await axiosSearch("events", searchTerm);
-        // console.log(data);
-        setSearchData(data._embedded.events);
+        const data = await axiosSearch("attractions", searchTerm);
+
+        setSearchData(data._embedded.attractions);
         setLoading(false);
       } catch (e) {
         console.log(e);
@@ -88,22 +87,24 @@ const EventsList = (props) => {
     console.log(value);
     setSearchTerm(value);
   };
-  const buildCard = (event) => {
-    // console.log(event.classifications[0].genre.name);
+  // async function checkPageData() {
+  //   try {
+  //     const data = await axiosLists("attractions", parseInt(page) + 1);
+  //     // console.log(data);
+  //     if (!data) {
+  //       setHideNext(true);
+  //     } else {
+  //       setHideNext(false);
+  //     }
+  //   } catch (e) {
+  //     setHideNext(true);
+  //     console.log(e);
+  //   }
+  // }
+  const buildCard = (attraction) => {
+    // console.log(attraction.images[0].url);
     return (
-      // <Grid container spacing={24}>
-      <Grid
-        item
-        xs={12}
-        sm={7}
-        md={5}
-        lg={4}
-        xl={3}
-        sx={{
-          padding: 3,
-        }}
-        key={event.id}
-      >
+      <Grid item xs={12} sm={7} md={5} lg={4} xl={3} key={attraction.id}>
         <Card
           variant="outlined"
           sx={{
@@ -118,7 +119,7 @@ const EventsList = (props) => {
           }}
         >
           <CardActionArea>
-            <Link to={`/events/${event.id}`}>
+            <Link to={`/attractions/${attraction.id}`}>
               <CardMedia
                 sx={{
                   height: "100%",
@@ -126,11 +127,11 @@ const EventsList = (props) => {
                 }}
                 component="img"
                 image={
-                  event.images && event.images[2].url
-                    ? event.images[2].url
+                  attraction.images && attraction.images[0].url
+                    ? attraction.images[0].url
                     : noImage
                 }
-                title="event image"
+                title="attraction image"
               />
 
               <CardContent>
@@ -143,13 +144,19 @@ const EventsList = (props) => {
                   variant="h6"
                   component="h3"
                 >
-                  {event.name}
+                  {attraction.name}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
-                  {event.classifications[0]
-                    ? event.classifications[0].segment.name +
+                  {attraction.classifications[0].segment &&
+                  attraction.classifications[0].genre
+                    ? (attraction.classifications[0].segment.name !==
+                      "Undefined"
+                        ? attraction.classifications[0].segment.name
+                        : "N/A") +
                       " | " +
-                      event.classifications[0].genre.name
+                      (attraction.classifications[0].genre.name !== "Undefined"
+                        ? attraction.classifications[0].genre.name
+                        : "N/A")
                     : "No Genre"}
                 </Typography>
               </CardContent>
@@ -157,23 +164,22 @@ const EventsList = (props) => {
           </CardActionArea>
         </Card>
       </Grid>
-      // </Grid>
     );
   };
 
   if (searchTerm) {
     card =
       searchData &&
-      searchData.map((events) => {
-        let event = events;
-        return buildCard(event);
+      searchData.map((attractions) => {
+        let attraction = attractions;
+        return buildCard(attraction);
       });
   } else {
-    // console.log(eventsData);
+    // console.log(attractionsData.images);
     card =
-      eventsData &&
-      eventsData.map((event) => {
-        return buildCard(event);
+      attractionsData &&
+      attractionsData.map((attraction) => {
+        return buildCard(attraction);
       });
   }
 
@@ -199,13 +205,13 @@ const EventsList = (props) => {
         <br />
         <div>
           {hidePrev ? null : (
-            <Link to={`/events/pages/${parseInt(page) - 1}`}>
+            <Link to={`/attractions/pages/${parseInt(page) - 1}`}>
               <Button>Previous</Button>
             </Link>
           )}
           <span>{page}</span>
           {hideNext ? null : (
-            <Link to={`/events/pages/${parseInt(page) + 1}`}>
+            <Link to={`/attractions/pages/${parseInt(page) + 1}`}>
               <Button>Next</Button>
             </Link>
           )}
@@ -218,4 +224,4 @@ const EventsList = (props) => {
   }
 };
 
-export default EventsList;
+export default AttractionsList;

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import noImage from "../img/download.jpeg";
 import { axiosID } from "../AxiosLinks";
@@ -15,6 +14,9 @@ import "../App.css";
 const Events = (props) => {
   const [eventsData, setEventsData] = useState(undefined);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [errorCode, setErrorCode] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   // const classes = useStyles();
   let { id } = useParams();
 
@@ -47,7 +49,10 @@ const Events = (props) => {
         setLoading(false);
         // console.log(event);
       } catch (e) {
-        console.log(e);
+        setErrorCode("404");
+        setErrorMsg("Event Not Found");
+        setError(true);
+        setLoading(false);
       }
     }
     fetchData();
@@ -67,7 +72,16 @@ const Events = (props) => {
         <h2>Loading....</h2>
       </div>
     );
+  } else if (error) {
+    return (
+      <div>
+        <h1>
+          {errorCode}: {errorMsg}
+        </h1>
+      </div>
+    );
   } else {
+    // console.log(eventsData.dates.status);
     return (
       <Card
         variant="outlined"
@@ -77,7 +91,7 @@ const Events = (props) => {
           marginLeft: "auto",
           marginRight: "auto",
           borderRadius: 5,
-          border: "1px solid #1e8678",
+          border: "1px solid #024ddf",
           boxShadow:
             "0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);",
         }}
@@ -85,7 +99,7 @@ const Events = (props) => {
         <CardHeader
           //   title={eventsData.name}
           sx={{
-            borderBottom: "1px solid #1e8678",
+            borderBottom: "1px solid #024ddf",
             fontWeight: "bold",
           }}
         />
@@ -105,27 +119,27 @@ const Events = (props) => {
             color="textSecondary"
             component="span"
             sx={{
-              borderBottom: "1px solid #1e8678",
+              borderBottom: "1px solid #024ddf",
               fontWeight: "bold",
             }}
           >
             <dl>
               <p>
-                <dt className="title">Average Rating:</dt>
-                {eventsData && eventsData.rating.average ? (
-                  <dd>{eventsData.rating.average}</dd>
+                <dt className="title">Title:</dt>
+                {eventsData && eventsData.name ? (
+                  <dd>{eventsData.name}</dd>
                 ) : (
                   <dd>N/A</dd>
                 )}
               </p>
               <p>
                 <dt className="title">Offical Site:</dt>
-                {eventsData && eventsData.officialSite ? (
+                {eventsData && eventsData.url ? (
                   <dd>
                     <a
                       rel="noopener noreferrer"
                       target="_blank"
-                      href={eventsData.officialSite}
+                      href={eventsData.url}
                     >
                       {eventsData.name} Offical Site
                     </a>
@@ -135,91 +149,131 @@ const Events = (props) => {
                 )}
               </p>
               <p>
-                <dt className="title">Network:</dt>
-                {eventsData && eventsData.network ? (
-                  <dd>{eventsData.network && eventsData.network.name}</dd>
+                <dt className="title">Ticket Status:</dt>
+                {eventsData && eventsData.dates && eventsData.dates ? (
+                  <dd>{eventsData.dates.status.code}</dd>
                 ) : (
                   <dd>N/A</dd>
                 )}
               </p>
               <p>
-                <dt className="title">Language:</dt>
-                {eventsData && eventsData.language ? (
-                  <dd>{eventsData.language}</dd>
+                <dt className="title">Price:</dt>
+                {eventsData && eventsData.priceRanges ? (
+                  <dd>
+                    ${eventsData.priceRanges[0].min} - $
+                    {eventsData.priceRanges[0].max}
+                  </dd>
                 ) : (
                   <dd>N/A</dd>
                 )}
               </p>
               <p>
-                <dt className="title">Runtime:</dt>
-                {eventsData && eventsData.runtime ? (
-                  <dd>{eventsData.runtime + " Min"}</dd>
+                <dt className="title">Segment:</dt>
+                {eventsData && eventsData.classifications[0].segment ? (
+                  <dd>{eventsData.classifications[0].segment.name}</dd>
                 ) : (
                   <dd>N/A</dd>
                 )}
               </p>
               <p>
-                <dt className="title">Premiered:</dt>
-                {eventsData && eventsData.premiered ? (
-                  <dd>{formatDate(eventsData.premiered)}</dd>
-                ) : (
-                  <dd>N/A</dd>
-                )}
-              </p>
-              <p>
-                <dt className="title">Country:</dt>
-                {eventsData &&
-                eventsData.network &&
-                eventsData.network.country.name ? (
-                  <dd>{eventsData.network.country.name}</dd>
-                ) : (
-                  <dd>N/A</dd>
-                )}
-              </p>
-              <p>
-                <dt className="title">Time Zone:</dt>
-                {eventsData &&
-                eventsData.network &&
-                eventsData.network.country.timezone ? (
-                  <dd>{eventsData.network.country.timezone}</dd>
-                ) : (
-                  <dd>N/A</dd>
-                )}
-              </p>
-              <p>
-                <dt className="title">Airtime:</dt>
-                {eventsData && eventsData.schedule.time ? (
-                  <dd>{tConvert(eventsData.schedule.time)}</dd>
-                ) : (
-                  <dd>N/A</dd>
-                )}
-              </p>
-              <p>
-                <dt className="title">Days Aired:</dt>
-                {eventsData &&
-                eventsData.schedule.days &&
-                eventsData.schedule.days.length >= 1 ? (
-                  <span>
-                    {eventsData.schedule.days.map((day) => {
-                      if (eventsData.schedule.days.length > 1)
-                        return <dd key={day}>{day}s,</dd>;
-                      return <dd key={day}>{day}s</dd>;
-                    })}
-                  </span>
-                ) : (
-                  <dd>N/A</dd>
-                )}
-              </p>
-              <p>
-                <dt className="title">Status:</dt>
-                {eventsData && eventsData.status ? (
-                  <dd>{eventsData.status}</dd>
+                <dt className="title">Genre:</dt>
+                {eventsData && eventsData.classifications[0].genre ? (
+                  <dd>{eventsData.classifications[0].genre.name}</dd>
                 ) : (
                   <dd>N/A</dd>
                 )}
               </p>
 
               <p>
+                <dt className="title">Age Restriction:</dt>
+                {eventsData && eventsData.ageRestrictions ? (
+                  <dd>
+                    {eventsData.ageRestrictions.legalAgeEnforced === false
+                      ? "NONE"
+                      : "YES"}
+                  </dd>
+                ) : (
+                  <dd>N/A</dd>
+                )}
+              </p>
+              <p>
+                <dt className="title">Date:</dt>
+                {eventsData && eventsData.dates && eventsData.dates.start ? (
+                  <dd>{formatDate(eventsData.dates.start.localDate)}</dd>
+                ) : (
+                  <dd>N/A</dd>
+                )}
+              </p>
+              <p>
+                <dt className="title">Venue:</dt>
+                {eventsData && eventsData._embedded.venues[0].address ? (
+                  <dd>
+                    {eventsData._embedded.venues[0].address.line1},
+                    {eventsData._embedded.venues[0].city.name},
+                    {eventsData._embedded.venues[0].state.name},{" "}
+                    {eventsData._embedded.venues[0].country.countryCode}{" "}
+                  </dd>
+                ) : (
+                  <dd>N/A</dd>
+                )}
+              </p>
+              <p>
+                <dt className="title">Time Zone:</dt>
+                {eventsData && eventsData.dates.timezone ? (
+                  <dd>{eventsData.dates.timezone}</dd>
+                ) : (
+                  <dd>N/A</dd>
+                )}
+              </p>
+              <p>
+                <dt className="title">StartTime:</dt>
+                {eventsData && eventsData.dates.start.localTime ? (
+                  <dd>{tConvert(eventsData.dates.start.localTime)}</dd>
+                ) : (
+                  <dd>N/A</dd>
+                )}
+              </p>
+              <p>
+                <dt className="title">Seat Map:</dt>
+                {eventsData && eventsData.seatmap ? (
+                  <dd>{eventsData.seatmap.staticUrl}</dd>
+                ) : (
+                  <dd>N/A</dd>
+                )}
+              </p>
+              <p>
+                <dt className="title">Status:</dt>
+                {eventsData && eventsData.dates.status ? (
+                  <dd>{eventsData.dates.status.code}</dd>
+                ) : (
+                  <dd>N/A</dd>
+                )}
+              </p>
+              <p>
+                <dt className="title">Promoter:</dt>
+                {eventsData && eventsData.promoter ? (
+                  <dd>{eventsData.promoter.name}</dd>
+                ) : (
+                  <dd>N/A</dd>
+                )}
+              </p>
+              <p>
+                <dt className="title">Important Information:</dt>
+                {eventsData && eventsData.info ? (
+                  <dd>{eventsData.info}</dd>
+                ) : (
+                  <dd>N/A</dd>
+                )}
+              </p>
+              <p>
+                <dt className="title">Important Note:</dt>
+                {eventsData && eventsData.pleaseNote ? (
+                  <dd>{eventsData.pleaseNote}</dd>
+                ) : (
+                  <dd>N/A</dd>
+                )}
+              </p>
+              {/* <p>
                 <dt className="title">Genres:</dt>
                 {eventsData &&
                 eventsData.genres &&
@@ -234,13 +288,13 @@ const Events = (props) => {
                 ) : (
                   <dd>N/A</dd>
                 )}
-              </p>
+              </p> */}
               <p>
                 <dt className="title">Summary:</dt>
                 <dd>{url}</dd>
               </p>
             </dl>
-            <Link to="/shows">Back to all shows...</Link>
+            <Link to="/events/pages/1">Back to all shows...</Link>
           </Typography>
         </CardContent>
       </Card>
@@ -249,40 +303,3 @@ const Events = (props) => {
 };
 
 export default Events;
-
-// import React, { Component } from "react";
-// import { useState, useEffect } from "react";
-// import noImage from "../img/download.jpeg";
-// import { Link, useParams } from "react-router-dom";
-// import { axiosID } from "../AxiosLinks";
-
-// const Events = () => {
-//   let { id } = useParams();
-//   const [eventsData, setEventsData] = useState(undefined);
-//   const [loading, setLoading] = useState(true);
-//   const regex = /(<([^>]+)>)/gi;
-
-//   useEffect(() => {
-//     console.log("SHOW useEffect fired");
-//     async function fetchData() {
-//       try {
-//         const { data: event } = await axiosID("events", id);
-//         setEventsData(event);
-//         setLoading(false);
-//         console.log(event);
-//       } catch (e) {
-//         console.log(e);
-//       }
-//     }
-//     fetchData();
-//   }, [id]);
-//   //   render() {
-//   //     const regex = /(<([^>]+)>)/gi;
-//   //     return (
-//   //       <div className="event-body">
-//   //         <h1 className="cap-first-letter">{"lloll" || "No Event Name"}</h1>
-//   //       </div>
-//   //     );
-//   //   }
-// };
-// export default Events;

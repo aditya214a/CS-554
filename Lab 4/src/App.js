@@ -17,7 +17,8 @@ function App() {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title"> Welcome to TicketMaster API</h1>
+          {/* <h1 className="App-title"> Welcome to TicketMaster API</h1> */}
+          <h5> </h5>
           <Link className="showlink" to="/">
             Home
           </Link>

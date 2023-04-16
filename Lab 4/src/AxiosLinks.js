@@ -5,7 +5,7 @@ const url = "https://app.ticketmaster.com/discovery/v2/";
 
 export async function axiosLists(category, page = 1) {
   const { data } = await axios.get(
-    `${url}${category}?apikey=${apiKey}&locale=*&page=${page - 1}&size=50`
+    `${url}${category}?apikey=${apiKey}&locale=*&page=${page - 1}&size=51`
   );
   // console.log("VENUES");
   // console.log(data._embedded);

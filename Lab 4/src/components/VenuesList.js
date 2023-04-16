@@ -39,27 +39,33 @@ const VenuesList = (props) => {
 
         if (parseInt(page) > 1) {
           setHidePrev(false);
-        } else {
-          setHidePrev(true);
-        }
-        setHideNext(false);
+        } else setHidePrev(true);
+        if (page > 49) {
+          setHideNext(true);
+        } else setHideNext(false);
+
+        // setHideNext(false);
         setVenuesData(data.venues);
         setLoading(false);
       } catch (e) {
-        setErrorCode("404");
-        setErrorMsg("Page Not Found");
-        setError(true);
-        setLoading(false);
+        console.log(e);
+        // setErrorCode("404");
+        // setErrorMsg("Page Not Found");
+        // setError(true);
+        // setLoading(false);
       }
 
       try {
-        const data1 = await axiosLists("venues", parseInt(page) + 1);
-        if (!data1) {
+        if (page > 50) {
           //2558
           throw new Error("No Next Page");
         }
       } catch (e) {
-        setHideNext(true);
+        // setHideNext(true);
+        setErrorCode("404");
+        setErrorMsg("Page Not Found");
+        setError(true);
+        setLoading(false);
       }
     }
     fetchData();
@@ -198,7 +204,16 @@ const VenuesList = (props) => {
               <Button>Next</Button>
             </Link>
           )}
-          {card}
+          <Grid
+            container
+            spacing={3}
+            sx={{
+              flexGrow: 1,
+              flexDirection: "row",
+            }}
+          >
+            {card}
+          </Grid>
         </div>
         <br />
         <br />

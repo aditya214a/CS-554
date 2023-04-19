@@ -49,7 +49,7 @@ const LikeLocation = ({ query, del }) => {
                   marginLeft: "auto",
                   marginRight: "auto",
                   borderRadius: 5,
-                  border: "1px solid #1e8678",
+                  border: "1px solid #024ddf",
                   boxShadow:
                     "0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);",
                 }}
@@ -67,7 +67,7 @@ const LikeLocation = ({ query, del }) => {
                   <CardContent>
                     <Typography
                       sx={{
-                        borderBottom: "1px solid #1e8678",
+                        borderBottom: "1px solid #024ddf",
                         fontWeight: "bold",
                       }}
                       gutterBottom
@@ -78,7 +78,7 @@ const LikeLocation = ({ query, del }) => {
                     </Typography>
                     <Typography
                       sx={{
-                        borderBottom: "1px solid #1e8678",
+                        borderBottom: "1px solid #024ddf",
                         fontWeight: "bold",
                       }}
                       gutterBottom
@@ -89,7 +89,7 @@ const LikeLocation = ({ query, del }) => {
                     </Typography>
                     <Typography
                       sx={{
-                        borderBottom: "1px solid #1e8678",
+                        borderBottom: "1px solid #024ddf",
                         fontWeight: "bold",
                       }}
                       gutterBottom

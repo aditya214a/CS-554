@@ -6,8 +6,8 @@ const Form = ({ query }) => {
   const [address, setAddress] = useState("");
   const [name, setName] = useState("");
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = (loc) => {
+    loc.preventDefault();
     if (!validURL(imgUrl)) {
       alert("Invalid Image url");
       return;
@@ -49,7 +49,7 @@ const Form = ({ query }) => {
         <input
           type="text"
           value={imgUrl}
-          onChange={(event) => setImgUrl(event.target.value)}
+          onChange={(loc) => setImgUrl(loc.target.value)}
         />
       </label>
       <br />
@@ -60,7 +60,7 @@ const Form = ({ query }) => {
         <input
           type="text"
           value={address}
-          onChange={(event) => setAddress(event.target.value)}
+          onChange={(loc) => setAddress(loc.target.value)}
         />
       </label>
       <br />
@@ -71,7 +71,7 @@ const Form = ({ query }) => {
         <input
           type="text"
           value={name}
-          onChange={(event) => setName(event.target.value)}
+          onChange={(loc) => setName(loc.target.value)}
         />
       </label>
       <br />

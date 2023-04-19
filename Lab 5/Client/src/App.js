@@ -1,9 +1,9 @@
 import "./App.css";
 import React from "react";
 import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
-import LikedList from "./components/LikedList";
+// import LikedList from "./components/LikedList";
 import Home from "./components/Home";
-import MyLocation from "./components/MyLocation";
+// import MyLocation from "./components/MyLocation";
 import AddLoc from "./components/AddLoc";
 import logo from "./img/tm-developer-logo.svg";
 import queries from "./queries";
@@ -50,13 +50,11 @@ function App() {
             />
             <Route
               path="/my-likes"
-              element={<LikedList query={queries.GET_LIKED_LOCATIONS} />}
+              element={<Home query={queries.GET_LIKED_LOCATIONS} />}
             />
             <Route
               path="/my-location"
-              element={
-                <MyLocation del={true} query={queries.GET_USER_LOCATIONS} />
-              }
+              element={<Home query={queries.GET_USER_LOCATIONS} del={true} />}
             />
             <Route
               path="/new-location"
